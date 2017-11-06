@@ -219,10 +219,8 @@
         border-bottom: 1px solid $night-blue-dark;
         display: flex;
         align-items: center;
-        justify-content: flex-start;
+        justify-content: center;
         height: 4rem;
-        padding-left: 1rem;
-        padding-right: 1.5rem;
         transition: .4s ease-in-out all;
         transition-delay: .5s;
 
@@ -244,7 +242,6 @@
 
         &.jumbo {
             height: 8rem;
-            justify-content: center;
             background-color: lighten($night-blue-medium,5);
             box-shadow: 0 3px 8px 0 rgba(0,0,0,0.2), 0 0 0 1px rgba(0,0,0,0.08);
             transition: 0.4s ease-in-out all;

@@ -1,12 +1,13 @@
 var path = require('path')
 var webpack = require('webpack')
 var ExtractTextPlugin = require('extract-text-webpack-plugin')
+var publicPath = (process.env.NODE_ENV === 'production') ? '/' : '/dist/';
 
 module.exports = {
     entry: ['./src/assets/scss/app.scss','./src/main.js'],
     output: {
         path: path.resolve(__dirname, './dist'),
-        publicPath: '/',
+        publicPath: publicPath,
         filename: 'js/app.bundle.js'
     },
     module: {
