@@ -1,0 +1,324 @@
+.theme--kryptolight {
+  background: $day-gray-lighter;
+  color: $day-text-on-dark;
+
+  .card {
+    background: $white;
+
+    &-content__side {
+      background: $day-gray-light;
+    }
+  }
+
+  .m-select-group {
+    .options {
+      background-color: $day-gray-light;
+      color: $day-text-on-light;
+
+      &::-webkit-scrollbar-thumb {
+        background-color: darken($day-gray-light,15);
+        outline: 1px solid slategrey;
+      }
+    }
+  }
+
+  .m-multi-select-group {
+    .options {
+      background-color: $day-gray-light;
+      color: $day-text-on-light;
+
+      &::-webkit-scrollbar-thumb {
+        background-color: darken($day-gray-light,15);
+        outline: 1px solid slategrey;
+      }
+    }
+
+    .active-option {
+      color: $day-green;
+    }
+  }
+
+  .single-bar-chart {
+    .active {
+      box-shadow: 0 0 3px $day-glow;
+    }
+  }
+
+  .portfolio-row__percent-change {
+    &--up {
+      color: $day-green;
+
+      &:after {
+        font-family: FontAwesome;
+        content: "\f176";
+      }
+    }
+
+    &--down {
+      color: $day-danger;
+
+      &:after {
+        font-family: FontAwesome;
+        content: "\f175";
+      }
+    }
+  }
+
+  .asset-label {
+    &__remove-asset-button {
+      color: $day-danger;
+
+      &:hover {
+        color: darken($day-danger, 10%);
+      }
+    }
+  }
+
+  .market-value {
+    .default-currency {
+      color: $day-green;
+    }
+
+    small {
+      color: $day-text-on-light;
+    }
+  }
+
+  .portfolio-table-container {
+    background-color: $white;
+  }
+
+  .search-dropdown {
+    background-color: $day-gray-light;
+    color: $day-text-on-light;
+  }
+
+  .search-dropdown__item {
+    &:hover {
+      color: darken($day-gray-light,15%);
+    }
+  }
+
+  .side-nav {
+    background-color: $day-gray-dark;
+  }
+
+  .brand {
+    border-bottom: 1px solid lighten($day-gray-dark,3);
+
+    &.jumbo {
+      background-color: lighten($day-gray-dark,3);
+    }
+  }
+
+  .user-panel__head {
+    background-color: darken($day-gray-dark, 2);
+    border-bottom: 1px solid lighten($day-gray-dark,3);
+  }
+
+  .user-panel__menu {
+    background-color: darken($day-gray-dark, 4);
+    border-bottom: 1px solid lighten($day-gray-dark,3);
+  }
+
+  .table {
+    thead {
+      background-color: $day-gray-light;
+    }
+
+    thead th, tfoot th {
+      border: none;
+    }
+
+    background: $white;
+    border: none;
+
+    td {
+      border: none;
+    }
+
+    .table-active {
+      td {
+        background: $day-gray-lighter;
+      }
+    }
+  }
+
+  .side-nav {
+    .m-input-group {
+      input {
+        border-bottom: 1px solid $white;
+        color: white;
+      }
+    }
+  }
+
+  .m-input-group {
+    input {
+      background-color: transparent;
+      border-bottom: 1px solid $day-gray;
+      color: $day-text-on-light;
+
+      &.invalid {
+        border-bottom: 1px solid $day-danger;
+      }
+    }
+
+    label {
+      color: lighten($day-text-on-light,5);
+    }
+
+    input:focus ~ label, input:valid ~ label, input.used ~ label {
+      color: $day-green;
+    }
+
+    .bar  {
+      &:before, &:after   {
+        background: $day-green;
+      }
+    }
+
+    .invalid-message {
+      color: $day-danger;
+    }
+  }
+
+  .m-checkbox-group {
+    &:hover {
+      color: darken($day-text-on-light, 10);
+    }
+
+    label {
+      color: lighten($day-text-on-light, 5);
+    }
+
+    span {
+      &.box {
+        border:2px solid $day-gray;
+      }
+
+      &.check {
+        border:2px solid $day-green;
+        border-right: none;
+        border-bottom: none;
+      }
+    }
+
+  }
+
+  .m-button {
+    background: $day-green;
+    color: $white;
+
+    &:focus {
+      outline-color: $day-green;
+    }
+
+    &:hover {
+      background: darken($day-green,5);
+    }
+
+    &:active {
+      background: darken($day-green,8);
+    }
+
+    svg {
+      path {
+        fill: $white;
+      }
+    }
+  }
+
+  // List group
+  .m-list-group {
+    &.m-list-group-hover {
+      .m-list-group-item:hover {
+        background-color: $day-green;
+        color: $white;
+      }
+
+      &.active {
+        background-color: $day-green;
+        color: $white;
+      }
+    }
+
+    hr {
+      background: $night-gray;
+    }
+  }
+
+  a.m-list-group-item {
+    color: $day-text-on-dark;
+    &:hover {
+      color: darken($day-text-on-dark, 10%);
+    }
+  }
+
+  .m-list-group-item {
+    border-bottom: 1px solid lighten($day-gray-dark,3);
+
+    &.active {
+      border-left: $m-list-group-item-active-border solid $day-green;
+      color: $day-green;
+      &:hover {
+        color: $day-green;
+      }
+    }
+  }
+
+  .single-bar-chart {
+    opacity: 0.65;
+  }
+
+  .vue-chart-container .google-visualization-tooltip {
+    background-color: $day-gray-light;
+  }
+
+  #defs ~ g path:first-of-type {
+    stroke: $white;
+  }
+
+  .value-breakdown {
+    &::-webkit-scrollbar-thumb {
+      background-color: darken($day-gray-light,15);
+      outline: 1px solid slategrey;
+    }
+
+    .value {
+      color: $day-green;
+    }
+
+    small {
+      color: $day-text-on-light;
+    }
+  }
+
+  .chart-tooltip {
+    .name {
+      color: $day-green;
+    }
+  }
+
+  .vue-chart div:first-of-type div:first-of-type div:first-of-type {
+    opacity: 0.7;
+  }
+
+  .sub-header {
+    div {
+      color: $day-green;
+    }
+  }
+
+  .right-header {
+    span {
+      color: $day-green;
+    }
+  }
+
+  button {
+    &:focus {
+      outline-color: $day-green;
+    }
+  }
+ }

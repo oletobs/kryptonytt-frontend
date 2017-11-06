@@ -1,0 +1,118 @@
+/*
+ * ----------- IMPORTS -----------
+ */
+
+// Cryptocoins-icons
+@import '~cryptocoins-icons/webfont/cryptocoins.css';
+//@import '~cryptocoins-icons/webfont/cryptocoins-colors.css';
+
+// Bootstrap
+@import "~bootstrap/scss/functions";
+@import "~bootstrap/scss/variables";
+@import "~bootstrap/scss/mixins";
+@import "~bootstrap/scss/root";
+@import "~bootstrap/scss/reboot";
+@import "~bootstrap/scss/utilities";
+@import "~bootstrap/scss/type";
+
+// Bootstrap components
+@import "~bootstrap/scss/grid";
+@import "~bootstrap/scss/tables";
+@import "~bootstrap/scss/input-group";
+@import "~bootstrap/scss/nav";
+@import "~bootstrap/scss/card";
+@import "~bootstrap/scss/list-group";
+//@import "~bootstrap/scss/tooltip";
+//@import "~bootstrap/scss/custom-forms";
+//@import "~bootstrap/scss/navbar";
+//@import "~bootstrap/scss/forms";
+//@import "~bootstrap/scss/buttons";
+//@import "~bootstrap/scss/print";
+//@import "~bootstrap/scss/images";
+//@import "~bootstrap/scss/code";
+//@import "~bootstrap/scss/transitions";
+//@import "~bootstrap/scss/dropdown";
+//@import "~bootstrap/scss/button-group";
+//@import "~bootstrap/scss/breadcrumb";
+//@import "~bootstrap/scss/pagination";
+//@import "~bootstrap/scss/badge";//
+//@import "~bootstrap/scss/jumbotron";
+//@import "~bootstrap/scss/alert";
+//@import "~bootstrap/scss/progress";
+//@import "~bootstrap/scss/media";
+//@import "~bootstrap/scss/close";
+//@import "~bootstrap/scss/modal";
+//@import "~bootstr//ap/scss/popover";
+//@import "~bootstrap/scss/carousel";
+
+// Kryptonytt components
+@import "./components/material/forms";
+@import "./components/material/list-group";
+
+// Kryptonytt themes
+@import "./themes/kryptolight";
+
+/*
+ * ----------- Content -----------
+ */
+
+// General
+.main-content {
+  margin-top: 1rem;
+  margin-left: 1rem;
+}
+
+.sub-header {
+  div {
+    color: $night-blue-lighter;
+    font-weight: 500;
+    font-size: 1.2rem;
+  }
+
+  small {
+    font-size: 80%;
+    display: block;
+    margin-top: -2px;
+  }
+}
+
+.right-header {
+  span {
+    color: $night-blue-lighter;
+    font-weight: 500;
+    font-size: 1.2rem;
+  }
+
+  small {
+    font-size: 80%;
+    margin-left: 2px;
+  }
+}
+
+// Tables
+.table {
+  thead {
+    background-color: $table-head-bg;
+  }
+
+  thead th {
+    border-bottom: 1px solid $table-border-color;
+  }
+
+  tfoot th, thead th {
+    font-weight: 500;
+  }
+}
+
+.list-group.list-group-small {
+  .list-group-item {
+    padding: $m-list-group-small-item-padding-y $m-list-group-small-item-padding-x;
+  }
+}
+
+.list-group.list-group-fill {
+  .list-group-item {
+    padding-left: 0;
+    padding-right: 0;
+  }
+}

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta charset="utf-8">
+    <title>portfolio</title>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,500" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="/dist/css/app.bundle.css">
+
+</head>
+<body>
+
+<div id="app" :class="{ 'theme--kryptolight': !nightMode }">
+
+    <div class="container-fluid">
+
+        <div class="row flex-nowrap">
+
+            <left-bar
+                    class="col-auto side-nav"
+                    :fiat-last-updated="fiatLastUpdated"
+                    :crypto-last-updated="cryptoLastUpdated"
+                    :show="showSideNav">
+            </left-bar>
+
+            <keep-alive>
+
+                <router-view class="col main-content" :rates="rates" v-if="!loading && (loggedIn || offlineMode)"></router-view>
+
+            </keep-alive>
+
+            <transition name="fade-snackbar">
+                <snackbar v-if="snackbar.show" :message="snackbar.message"></snackbar>
+            </transition>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/numeric/1.2.6/numeric.min.js"></script>
+<script src="/dist/js/app.bundle.js"></script>
+
+</body>
+</html>

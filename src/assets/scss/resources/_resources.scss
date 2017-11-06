@@ -1,0 +1,89 @@
+// This file is auto imported by sass-resource-loader
+/*
+ *  ---------- Colors --------------
+ */
+
+// Night Theme
+$night-blue-dark:             #141d26;
+$night-blue-medium:           #1b2836;
+$night-blue-light:            #1B3448;
+$night-blue-lighter:          #1DA1F2;
+$night-gray:                  #8899a6;
+$night-success:               #093;
+$night-danger:                #d14836;
+$night-glow:                  rgba(81, 203, 238, 0.5);
+
+// Day Theme
+$day-gray-lighter:          #E7EBEE;
+$day-gray-light:            #F5F6F8;
+$day-gray-medium:           #BAC3D2;
+$day-gray-dark:             #252D3A;
+$day-green:                 #43AEA8;
+$day-gray:                  #8899a6;
+$day-success:               $day-green;
+$day-danger:                #f95a47;
+$day-glow:                  $day-green;
+$day-text-on-dark:          #868d97;
+$day-text-on-light:         #6d717c;
+
+// General
+$black:                       #000;
+$white:                       #FFF;
+
+// Color Theme
+$theme-colors: (
+        "primary": $night-blue-lighter,
+        "danger": $night-danger,
+        "success": $night-success
+);
+
+/*
+ *  ---------- Bootstrap Variables --------------
+ */
+
+// General
+$body-bg:                     $night-blue-dark;
+$body-color:                  $night-gray;
+
+$border-radius:               0;
+$border-radius-lg:            0;
+$border-radius-sm:            0;
+
+// Tables
+$table-bg:                    $night-blue-medium;
+$table-hover-bg:              $night-blue-dark;
+$table-active-bg:             $night-blue-dark;
+$table-border-color:          $night-blue-dark;
+$table-head-bg:               $night-blue-light;
+$table-head-color:            $night-gray;
+
+// Forms
+$placeholder-color:           $night-gray;
+
+// Cards
+$card-cap-bg:                 $night-blue-light;
+$card-bg:                     $night-blue-medium;
+$card-spacer-y:               .75rem;
+$card-spacer-x:               .75rem;
+
+// List Groups
+$list-group-bg:               transparent;
+$list-group-border-width:     0;
+
+// Typography
+$small-font-size:             70%;
+
+
+/*
+ *  ---------- Kryptonytt Variables --------------
+ */
+
+// Material List Group
+$m-list-group-item-padding-x:         1rem;
+$m-list-group-item-padding-y:         1rem;
+$m-list-group-item-active-border:     4px;
+$m-list-group-item-icon-margin:       1rem;
+$m-list-group-small-item-padding-y:   0.5rem;
+$m-list-group-small-item-padding-x:   $m-list-group-item-padding-x;
+$m-list-group-hr-margin-y:            0.3rem;
+$m-list-group-hr-margin-x:            1.5rem;

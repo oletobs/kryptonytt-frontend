@@ -1,0 +1,193 @@
+// Input (Styled types so far: text)
+.m-input-group {
+  position: relative;
+  margin-bottom: 2.2rem;
+
+  &.m-input-group-flat {
+    margin-bottom: 0;
+  }
+
+  input {
+    background-color: transparent;
+    display: block;
+    border: none;
+    border-bottom: 1px solid $white;
+    color: white;
+    width: 100%;
+    padding: 5px 5px 5px 5px;
+
+    &.invalid {
+      border-bottom: 1px solid $night-danger;
+    }
+
+    &:focus {
+      outline: none;
+    }
+  }
+
+  label {
+    color: $night-gray;
+    font-size: 18px;
+    font-weight: normal;
+    position: absolute;
+    pointer-events: none;
+    left: 5px;
+    top: 5px;
+    transition: 0.2s ease all;
+  }
+
+  input:focus ~ label, input:valid ~ label, input.used ~ label {
+    top: -15px;
+    font-size: 14px;
+    color: $night-blue-lighter;
+  }
+
+  .bar  {
+    position: relative;
+    display: block;
+    width: 100%;
+
+    &:before, &:after   {
+      content: '';
+      height: 2px;
+      width: 0;
+      bottom: 0;
+      position: absolute;
+      background: $night-blue-lighter;
+      transition: 0.2s ease all;
+    }
+
+    &:before {
+      left: 50%;
+    }
+
+    &:after {
+      right: 50%;
+    }
+  }
+
+  input:focus ~ .bar:before, input:focus ~ .bar:after {
+    width:50%;
+  }
+
+  .invalid-message {
+    display: inline-block;
+    float: right;
+    font-size: 14px;
+    color: $night-danger;
+  }
+}
+
+// Checkbox
+.m-checkbox-group {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  line-height: 1;
+
+  &:hover {
+    color: darken($body-color, 10%);
+  }
+
+  &.m-checkbox-group-right {
+    div {
+      margin-right: 0;
+      margin-left: 0.5rem;
+    }
+
+    label {
+      order: -1;
+    }
+  }
+
+  input[type=checkbox] {
+    display:none;
+  }
+
+  label {
+    cursor: pointer;
+    margin-bottom: 0;
+    user-select: none;
+  }
+
+  div {
+    position: relative;
+    height:20px;
+    width:20px;
+    margin-right: 1rem;
+  }
+
+  span {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display:block;
+    transition-duration: 0.3s;
+
+    &.box {
+      border:2px solid $night-gray;
+      height:20px;
+      width:20px;
+      z-index:888;
+    }
+
+    &.check {
+      width: 12px;
+      height: 20px;
+      border:2px solid $night-blue-lighter;
+      border-right: none;
+      border-bottom: none;
+      opacity:0;
+      z-index:889;
+    }
+  }
+
+  input[type=checkbox]:checked ~ div .box {
+    opacity:0;
+    transform:scale(0) rotate(-180deg);
+  }
+
+  input[type=checkbox]:checked ~ div .check {
+    opacity:1;
+    transform-origin: 8px 7px;
+    transform:scale(1) rotate(225deg);
+  }
+}
+
+// Button
+.m-button {
+  background: $night-blue-lighter;
+  border: none;
+  font-weight: 400;
+  white-space: nowrap;
+  color: $white;
+  transition: background-color .15s;
+  padding: .375rem .5rem;
+  text-align: center;
+  vertical-align: middle;
+  line-height: 1.5;
+
+  &.m-button-small {
+    padding: .125rem .375rem;
+  }
+
+  &:hover {
+    background: darken($night-blue-lighter,5);
+  }
+
+  &:active {
+    background: darken($night-blue-lighter,8);
+  }
+
+  // Block modifier, makes button fill container width
+  &.m-button-block {
+    display: block;
+    width: 100%;
+  }
+
+  svg {
+    path {
+      fill: $white;
+    }
+  }
+}

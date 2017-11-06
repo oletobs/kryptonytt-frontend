@@ -1,0 +1,99 @@
+// List group
+.m-list-group {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+
+  // Hover modifier, makes list-group items change background on hover
+  &.m-list-group-hover {
+    .m-list-group-item:hover {
+      background-color: $night-blue-lighter;
+      color: $white;
+    }
+
+    .m-list-group-item {
+      &.active {
+        border: none;
+        padding-left: $m-list-group-item-padding-x;
+
+        &.small {
+          padding-left: $m-list-group-small-item-padding-x;
+        }
+      }
+    }
+  }
+
+  // Small modifier, makes list-group items smaller
+  &.m-list-group-small {
+    .m-list-group-item {
+      padding: $m-list-group-small-item-padding-y $m-list-group-small-item-padding-x;
+      border: 0;
+
+      &.m-list-group-item-note {
+        padding-left: calc(#{$m-list-group-item-padding-x} + 5px);
+        padding-bottom: 0;
+        font-size: 90%;
+      }
+    }
+  }
+
+  hr {
+    display: block;
+    margin: $m-list-group-hr-margin-y $m-list-group-hr-margin-x;
+    border: 0;
+    height: 1px;
+    background: $night-gray;
+  }
+}
+
+a.m-list-group-item {
+  text-decoration: none;
+  color: $body-color;
+  &:hover {
+    color: darken($body-color, 10%);
+  }
+}
+
+button.m-list-group-item {
+  background: none;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  line-height: inherit;
+  overflow: visible;
+  padding: 0;
+}
+
+.m-checkbox-group.m-list-group-item {
+  div {
+    width: 2rem;
+
+    span {
+      left: calc((2rem - 20px) / 2);
+    }
+  }
+}
+
+.m-list-group-item {
+  position: relative;
+  padding: $m-list-group-item-padding-y $m-list-group-item-padding-x;
+  border-bottom: 1px solid darken($night-blue-medium,1);
+
+  i {
+    text-align: center;
+    margin-right: $m-list-group-item-icon-margin;
+    width: 2rem;
+  }
+
+  display: flex;
+  align-items: center;
+
+  &.active {
+    border-left: $m-list-group-item-active-border solid theme-color("primary");
+    padding-left: calc(#{$m-list-group-item-padding-x} - #{$m-list-group-item-active-border});
+    color: theme-color("primary");
+    &:hover {
+      color: theme-color("primary");
+    }
+  }
+}
