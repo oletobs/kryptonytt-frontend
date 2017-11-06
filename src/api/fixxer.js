@@ -3,7 +3,7 @@ import axios from 'axios';
 class Fixxer {
 
     static getRatesBaseUSD() {
-        return axios.get('http://api.fixer.io/latest?base=USD')
+        return axios.get('https://api.fixer.io/latest?base=USD')
     }
 }
 
