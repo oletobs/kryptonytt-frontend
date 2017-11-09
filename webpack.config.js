@@ -1,13 +1,13 @@
-var path = require('path')
-var webpack = require('webpack')
-var ExtractTextPlugin = require('extract-text-webpack-plugin')
-var publicPath = (process.env.NODE_ENV === 'production') ? '/' : '/dist/';
+var path = require('path');
+var webpack = require('webpack');
+var ExtractTextPlugin = require('extract-text-webpack-plugin');
+var HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
-    entry: ['./src/assets/scss/app.scss','./src/main.js'],
+    entry: ['./src/assets/scss/app.scss','./src/app.js'],
     output: {
         path: path.resolve(__dirname, './dist'),
-        publicPath: publicPath,
+        publicPath: '/',
         filename: 'js/app.bundle.js'
     },
     module: {
@@ -57,10 +57,10 @@ module.exports = {
                 exclude: /node_modules/
             },
             {
-                test: /\.(png|jpg|gif|svg)$/,
+                test: /\.(png|jpg|gif|svg|ico)$/,
                 loader: 'file-loader',
                 options: {
-                    name: '[name].[ext]?[hash]'
+                    name: '[name].[ext]'
                 }
             },
             {
@@ -104,6 +104,12 @@ module.exports = {
     },
     plugins: [
         new ExtractTextPlugin("css/app.bundle.css"),
+        new HtmlWebpackPlugin({
+            title: 'Kryptonytt - Portfolio',
+            favicon: './src/assets/favicon.ico',
+            filename: 'index.html',
+            template: './index.html'
+        })
     ],
     resolve: {
         alias: {

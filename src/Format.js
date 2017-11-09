@@ -1,7 +1,7 @@
 class Format {
 
     static number(decimals) {
-        return new Intl.NumberFormat('de-DE', {
+        return new Intl.NumberFormat('en-US', {
             style: 'decimal',
             minimumFractionDigits: decimals,
             maximumFractionDigits: decimals

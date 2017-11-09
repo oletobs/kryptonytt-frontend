@@ -45,7 +45,9 @@ const store = new Vuex.Store({
             return currencies.concat(state.user.settings.currencies);
         },
         allCurrencies: state => {
-            return Object.keys(state.data.fiat.rates);
+            let allCurrencies = Object.keys(state.data.fiat.rates);
+            allCurrencies.unshift('BTC');
+            return allCurrencies;
         },
         tickerMap: state => {
             let tickerMap = new Map();
@@ -96,7 +98,7 @@ const store = new Vuex.Store({
             state.data.crypto.lastUpdated = timestamp;
         },
         addFiatRate(state, { currency, rate }) {
-            state.data.fiat.rates[currency] = rate;
+            Vue.set(state.data.fiat.rates, currency, rate);
         },
         setNightMode(state, nightMode) {
             state.user.settings['night-mode'] = nightMode;

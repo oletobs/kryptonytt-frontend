@@ -149,7 +149,7 @@
                 //EventBus.$emit('update-portfolio'); // Plot.ly Pie-chart event
             },
             addAsset(tickerId) {
-                this.portfolio.assets.push({ identifier: tickerId, amount: 0, custom: false });
+                this.portfolio.assets.push({ identifier: tickerId, amount: '', custom: false });
                 this.$emit('addAssetToActive', tickerId);
             }
         },

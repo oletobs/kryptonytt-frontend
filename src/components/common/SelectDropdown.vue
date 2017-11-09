@@ -9,7 +9,7 @@
         </div>
         <div v-if="options" class="options" ref="dropdown">
             <div class="m-list-group m-list-group-small m-list-group-hover">
-                <div v-for="option in optionList" class="m-list-group-item" @click="selectOption(option)">
+                <div v-for="option in optionList" class="m-list-group-item" :class="{ 'active-option': isSelected(option) }" @click="selectOption(option)">
                     {{ option.text }}
                 </div>
             </div>
@@ -57,6 +57,10 @@
 
             selectOption(option) {
                 this.$emit('input', option)
+            },
+
+            isSelected(option) {
+                return this.value.value == option.value;
             }
         }
     }
@@ -75,12 +79,13 @@
             z-index: 100;
             position: absolute;
             top: 100%;
-            max-height: 10rem;
+            max-height: 15rem;
             width: 100%;
             background-color: $night-blue-medium;
             color: $night-gray;
             box-shadow: 0 3px 8px 0 rgba(0,0,0,0.2), 0 0 0 1px rgba(0,0,0,0.08);
             overflow-y: auto;
+            padding-top: 2px;
 
             &::-webkit-scrollbar {
                 width: 0.5em;
@@ -96,10 +101,23 @@
             }
         }
 
-        .m-list-group-item {
-            user-select: none;
-            cursor: pointer;
-            padding: 2px 5px !important;
+        .m-list-group.m-list-group-small {
+            .m-list-group-item {
+                user-select: none;
+                cursor: pointer;
+                padding: 2px 5px;
+
+                &.active-option {
+                    font-weight: 500;
+                    color: $night-blue-lighter;
+                    border-left: 1px solid $night-blue-lighter;
+                    padding-left: 4px;
+
+                    &:hover {
+                        color: $white;
+                    }
+                }
+            }
         }
     }
 

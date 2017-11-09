@@ -8,11 +8,8 @@
 
         <div v-show="(suggestions.length > 0) && active" class="search-dropdown" ref="dropdown">
             <div v-for="ticker in suggestions" @click="add(ticker.id)" class="search-dropdown__item">
-                <span>
-                    <span class="cc ticker-logo-icon" :class="ticker.symbol" :style="{ 'color': '#'+getTickerColor(ticker.id) }"></span>
-                    {{ ticker.name }}
-                </span>
-                <i class="material-icons">add</i>
+                <span class="cc ticker-logo-icon" :class="ticker.symbol" :style="{ 'color': '#'+getTickerColor(ticker.id) }"></span>
+                {{ ticker.name }}
             </div>
         </div>
     </div>
@@ -32,7 +29,6 @@
                 value: '',
                 suggestions: [],
                 popper: null,
-                sortedTickers: [],
                 active: false
             }
         },
@@ -41,14 +37,6 @@
             tickers() {
                 return this.$store.state.data.crypto.tickers;
             }
-        },
-
-        mounted() {
-            this.sortedTickers = this.tickers.concat().sort((a,b) => {
-                if(a.name < b.name) return -1;
-                if(a.name > b.name) return 1;
-                return 0;
-            });
         },
 
         watch: {
@@ -65,16 +53,16 @@
                     return;
                 }
                 let count = 0;
-                for(let i = 0; i < this.sortedTickers.length; i++) {
-                    if(this.sortedTickers[i].name.toLowerCase().startsWith(this.value.toLowerCase())) {
-                        if(!this.assets.find(asset => asset.identifier == this.sortedTickers[i].id)) {
-                            this.$set(this.suggestions, count++, this.sortedTickers[i]);
+                for(let i = 0; i < this.tickers.length; i++) {
+                    let lowerCaseSearchString = this.value.toLowerCase();
+                    if(this.tickers[i].name.toLowerCase().startsWith(lowerCaseSearchString) || this.tickers[i].symbol.toLowerCase().startsWith(lowerCaseSearchString)) {
+                        if(!this.assets.find(asset => asset.identifier == this.tickers[i].id)) {
+                            this.$set(this.suggestions, count++, this.tickers[i]);
                         }
                     }
                     if(count == 5) break;
                 }
                 if(count < 5) {
-                    //console.log([count,5-count]);
                     this.suggestions.splice(count, this.suggestions.length-count);
                 }
             },
@@ -107,29 +95,27 @@
         width: 100%;
         background-color: $night-blue-medium;
         color: $night-gray;
-        padding: 0.2rem;
+        padding-top: 2px;
         box-shadow: 0 3px 8px 0 rgba(0,0,0,0.2), 0 0 0 1px rgba(0,0,0,0.08);
         z-index: 100;
     }
     
     .search-dropdown__item {
         cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
         padding: 0.5rem 0.5rem;
 
-        i {
-            font-size: 100%;
-        }
-
         &:hover {
-            color: darken($night-gray,15%);
+            background: $night-blue-lighter;
+            color: $white;
         }
     }
 
-    .ticker-logo-icon::before {
-        font-family: FontAwesome,"cryptocoins" !important;
-        content: "\f111";
+    .ticker-logo-icon {
+        margin-right: 0.5rem;
+
+        &::before {
+            font-family: FontAwesome,"cryptocoins" !important;
+            content: "\f111";
+        }
     }
 </style>

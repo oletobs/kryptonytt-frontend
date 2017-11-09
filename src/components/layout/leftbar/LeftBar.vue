@@ -25,8 +25,8 @@
 
                         <div class="user-panel__head" @click="showSettings = !showSettings">
 
-                            <span>
-                                <i class="user-icon material-icons">account_box</i>
+                            <span class="default-user-icon">
+                                <i class="material-icons">person</i>
                                 {{ username }}
                             </span>
 
@@ -39,8 +39,8 @@
                             <div class="m-list-group m-list-group-small m-list-group-hover">
 
                                 <router-link class="m-list-group-item" to="/username">
-                                    <i class="material-icons">folder_shared</i>
-                                    Preview Public
+                                    <i class="material-icons">public</i>
+                                    Public Page
                                 </router-link>
 
                                 <button class="m-list-group-item" @click="logout" v-if="loggedIn">
@@ -221,7 +221,7 @@
         align-items: center;
         justify-content: center;
         height: 4rem;
-        transition: .4s ease-in-out all;
+        transition: .4s ease-in-out height, .4s ease-in-out background, .4s ease-in-out box-shadow;
         transition-delay: .5s;
 
         &__logo {
@@ -244,7 +244,7 @@
             height: 8rem;
             background-color: lighten($night-blue-medium,5);
             box-shadow: 0 3px 8px 0 rgba(0,0,0,0.2), 0 0 0 1px rgba(0,0,0,0.08);
-            transition: 0.4s ease-in-out all;
+            transition: 0.4s ease-in-out height, .4s ease-in-out background, .4s ease-in-out box-shadow;
             transition-delay: .9s;
 
             .brand__name {
@@ -307,13 +307,6 @@
         span {
             display: flex;
             align-items: center;
-        }
-
-        .user-icon {
-            font-size: 2rem;
-            margin-right: 1rem;
-            width: 2rem;
-            text-align: center;
         }
 
         .drop-down-arrow {

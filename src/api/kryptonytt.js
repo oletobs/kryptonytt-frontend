@@ -3,14 +3,14 @@ import axios from 'axios';
 class Kryptonytt {
 
     static signUp(username,password) {
-        return axios.post('http://kryptonytt.io:8080/users/sign-up', {
+        return axios.post('https://kryptonytt.io:8443/users/sign-up', {
             username: username,
             password: password
         })
     }
 
     static login(username,password) {
-        return axios.post('http://kryptonytt.io:8080/login', {
+        return axios.post('https://kryptonytt.io:8443/login', {
             username: username,
             password: password
         })
@@ -18,7 +18,7 @@ class Kryptonytt {
 
     static getPortfolios(token) {
         let instance = axios.create({
-            baseURL: 'http://kryptonytt.io:8080/portfolios',
+            baseURL: 'https://kryptonytt.io:8443/portfolios',
             headers: {'Authorization': token}
         });
 
@@ -27,7 +27,7 @@ class Kryptonytt {
 
     static addPortfolio(token,portfolio) {
         let instance = axios.create({
-            baseURL: 'http://kryptonytt.io:8080',
+            baseURL: 'https://kryptonytt.io:8443',
             headers: {'Authorization': token}
         });
 
@@ -36,7 +36,7 @@ class Kryptonytt {
 
     static updatePortfolio(token,portfolioName,portfolio) {
         let instance = axios.create({
-            baseURL: 'http://kryptonytt.io:8080/portfolios',
+            baseURL: 'https://kryptonytt.io:8443/portfolios',
             headers: {'Authorization': token}
         });
 
@@ -49,7 +49,7 @@ class Kryptonytt {
 
     static getSettings(token) {
         let instance = axios.create({
-            baseURL: 'http://kryptonytt.io:8080/users/settings',
+            baseURL: 'https://kryptonytt.io:8443/users/settings',
             headers: {'Authorization': token}
         });
 
@@ -58,7 +58,7 @@ class Kryptonytt {
 
     static setSettings(token,settings) {
         let instance = axios.create({
-            baseURL: 'http://kryptonytt.io:8080/users/settings',
+            baseURL: 'https://kryptonytt.io:8443/users/settings',
             headers: {'Authorization': token}
         });
 

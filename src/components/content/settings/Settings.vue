@@ -4,10 +4,10 @@
 
         <div class="row currency-settings">
             <div class="col-xl-8">
-                    <select-dropdown v-model="defaultCurrency" :option-list="allCurrencies">Default Currency</select-dropdown>
+                    <select-dropdown v-model="defaultCurrency" :option-list="defaultCurrencyOptions">Default Currency</select-dropdown>
                     <small class="select-hint">The primary currency. Used to display the latest prices and also used in most charts.</small>
 
-                    <multi-select-dropdown v-model="currencies" :option-list="allCurrencies">Additional Currencies</multi-select-dropdown>
+                    <multi-select-dropdown v-model="currencies" :option-list="additionalCurrenciesOptions">Additional Currencies</multi-select-dropdown>
                     <small class="select-hint">Portfolio values and asset values will also be shown in these currencies.</small>
             </div>
         </div>
@@ -25,12 +25,26 @@
         },
 
         computed: {
-            allCurrencies() {
+            allCurrencyOptions() {
                 let allCurrencies = this.$store.getters.allCurrencies.map(currency => {
                     return { value: currency, text: currency }
                 });
-                allCurrencies.push({ value: 'BTC', text: 'BTC' });
+                console.log("all");
                 return allCurrencies;
+            },
+
+            defaultCurrencyOptions() {
+                console.log("default");
+                return this.allCurrencyOptions.filter((currency)=> {
+                    return (this.currencies.findIndex(c => c.value == currency.value) == -1);
+                });
+            },
+
+            additionalCurrenciesOptions() {
+                console.log("additional");
+                return this.allCurrencyOptions.filter((currency)=> {
+                    return this.defaultCurrency.value != currency.value;
+                });
             },
 
             currencies: {

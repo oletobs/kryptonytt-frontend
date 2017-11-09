@@ -4,7 +4,7 @@
         <slot v-if="!editable" :value="value"></slot>
 
         <div v-else class="m-input-group m-input-group-flat finance-input-group">
-            <input type="number" :value="value" @paste="paste" @keydown="limit" @input="updateValue" ref="input">
+            <input type="number" :value="value" @paste="paste" @keydown="limit" @input="updateValue" ref="input" placeholder="0">
             <span class="bar"></span>
         </div>
 

@@ -120,6 +120,7 @@
             color: $night-gray;
             box-shadow: 0 3px 8px 0 rgba(0,0,0,0.2), 0 0 0 1px rgba(0,0,0,0.08);
             overflow-y: auto;
+            padding-top: 2px;
 
             &::-webkit-scrollbar {
                 width: 0.5em;
@@ -135,15 +136,23 @@
             }
         }
 
-        .active-option {
-            font-weight: 500;
-            color: $night-blue-lighter;
-        }
+        .m-list-group.m-list-group-small {
+            .m-list-group-item {
+                user-select: none;
+                cursor: pointer;
+                padding: 2px 5px;
 
-        .m-list-group-item {
-            user-select: none;
-            cursor: pointer;
-            padding: 2px 5px !important;
+                &.active-option {
+                    font-weight: 500;
+                    color: $night-blue-lighter;
+                    border-left: 1px solid $night-blue-lighter;
+                    padding-left: 4px;
+
+                    &:hover {
+                        color: $white;
+                    }
+                }
+            }
         }
     }
 

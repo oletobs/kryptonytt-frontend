@@ -6,9 +6,7 @@ import { EventBus } from './EventBus'
 import LeftBar from './components/layout/leftbar/LeftBar.vue'
 import Snackbar from './components/common/Snackbar.vue'
 import VueCharts from 'vue-charts'
-
-// Hack to move index.html to dist when building
-require('file-loader?name=[name].[ext]!../index.html');
+import './assets/favicon.ico';
 
 Vue.use(VueCharts);
 

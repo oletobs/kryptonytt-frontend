@@ -26,13 +26,13 @@
             {{ getCurrencySymbol(currency) }}{{ ((currency == 'BTC') ? ticker.price_btc : (ticker.price_usd * rates[currency])) * asset.amount | financify }}
         </td>
 
-        <td class="portfolio-row__percent-change" :class="[ ((ticker.percent_change_24h>0) ? 'portfolio-row__percent-change--up' : 'portfolio-row__percent-change--down') ]">
+        <td class="portfolio-row__percent-change" :class="[ ((ticker.percent_change_1h>0) ? 'portfolio-row__percent-change--up' : 'portfolio-row__percent-change--down') ]">
             {{ ticker.percent_change_1h }}
         </td>
         <td class="portfolio-row__percent-change" :class="[ ((ticker.percent_change_24h>0) ? 'portfolio-row__percent-change--up' : 'portfolio-row__percent-change--down') ]">
             {{ ticker.percent_change_24h }}
         </td>
-        <td class="portfolio-row__percent-change" :class="[ ((ticker.percent_change_24h>0) ? 'portfolio-row__percent-change--up' : 'portfolio-row__percent-change--down') ]">
+        <td class="portfolio-row__percent-change" :class="[ ((ticker.percent_change_7d>0) ? 'portfolio-row__percent-change--up' : 'portfolio-row__percent-change--down') ]">
             {{ ticker.percent_change_7d }}
         </td>
 

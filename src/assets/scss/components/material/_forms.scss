@@ -72,7 +72,8 @@
 
   .invalid-message {
     display: inline-block;
-    float: right;
+    position: absolute;
+    right: 0;
     font-size: 14px;
     color: $night-danger;
   }
