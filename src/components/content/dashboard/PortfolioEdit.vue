@@ -6,51 +6,58 @@
             <div class="row align-items-center justify-content-end">
 
                 <div class="col-auto">
-                    <select-dropdown class="asset-type" v-model="assetType" :option-list="assetTypes">Asset Type</select-dropdown>
+                    <select-dropdown class="asset-type" v-model="userInput.assetType" :option-list="assetTypes">Asset Type</select-dropdown>
                 </div>
 
                 <div class="col-xl">
-                    <ticker-search v-if="assetType.value == 'crypto'" :assets="portfolio.assets" @add="addAsset"></ticker-search>
+                    <ticker-search v-if="userInput.assetType.value == 'crypto'" :coins="portfolio.coins" @add="addCoin"></ticker-search>
 
                     <div v-else class="name m-input-group m-input-group-flat">
-                        <input type="text" v-model="name" required>
+                        <input type="text" v-model="userInput.name" required>
                         <span class="bar"></span>
                         <label>Name</label>
                     </div>
                 </div>
 
-                <div v-if="assetType.value != 'crypto'" class="col-auto">
+                <div v-if="userInput.assetType.value != 'crypto'" class="col-auto">
                     <div class="amount m-input-group m-input-group-flat">
-                        <input type="text" v-model="amount" required>
+                        <input type="text" v-model="userInput.amount" required>
                         <span class="bar"></span>
                         <label>Amount</label>
                     </div>
                 </div>
 
-                <div v-if="assetType.value == 'custom'" class="col-auto">
+                <div v-if="userInput.assetType.value == 'custom'" class="col-auto">
                     <div class="price m-input-group m-input-group-flat">
-                        <input type="text" v-model="price" required>
+                        <input type="text" v-model="userInput.price" required>
                         <span class="bar"></span>
                         <label>Price</label>
                         <i class="multiply material-icons">close</i>
                     </div>
                 </div>
 
-                <div v-if="assetType.value != 'crypto'" class="col-auto">
+                <div v-if="userInput.assetType.value != 'crypto'" class="col-auto">
                     <div class="currency">
-                        <select-dropdown v-model="currency" :option-list="allCurrencies">Currency</select-dropdown>
+                        <select-dropdown v-model="userInput.currency" :option-list="allCurrencies">Currency</select-dropdown>
                         <div class="in-currency">in</div>
                     </div>
                 </div>
 
-                <div v-if="assetType.value != 'crypto'" class="col-auto">
-                    <button class="add-button m-button m-button-small m-button-block">
-                        {{ assetType.value == 'custom' ? 'Add Asset' : 'Add Fiat' }}
+                <div v-if="userInput.assetType.value != 'crypto'" class="col-auto">
+                    <button class="add-button m-button m-button-small m-button-block" @click="addAsset">
+                        {{ userInput.assetType.value == 'custom' ? 'Add Asset' : 'Add Fiat' }}
                     </button>
                 </div>
 
                 <div class="col-auto">
                     <check-box v-model="portfolio.public" class="public m-checkbox-group m-checkbox-group-right">Public</check-box>
+                </div>
+
+                <div class="col-auto">
+                    <button @click="deletePortfolio" class="save-button m-button m-button-small m-button-block"  :disabled="loadingAny">
+                        <beating-heart v-if="loading.deletePortfolio"></beating-heart>
+                        <template v-else>Delete</template>
+                    </button>
                 </div>
 
             </div>
@@ -59,8 +66,8 @@
 
         <div class="col-auto">
 
-            <button v-if="editable" @click="save" class="save-button m-button m-button-small m-button-block">
-                <beating-heart v-if="loading"></beating-heart>
+            <button v-if="editable" @click="savePortfolio" class="save-button m-button m-button-small m-button-block"  :disabled="loadingAny">
+                <beating-heart v-if="loading.savePortfolio"></beating-heart>
                 <template v-else>Save</template>
             </button>
             <button v-else @click="edit" class="edit-button m-button m-button-small m-button-block">
@@ -84,7 +91,6 @@
 
         data() {
             return {
-                editable: false,
                 assetTypes: [
                     {
                         value: 'crypto',
@@ -100,19 +106,25 @@
                         text: 'Custom',
                     }
                 ],
-                assetType: null,
-                name: '',
-                amount: '',
-                price: '',
-                currency: null,
+                editable: false,
                 cachedPortfolioName: '',
-                loading: false
+                userInput: {
+                    name: '',
+                    amount: '',
+                    price: '',
+                    currency: null,
+                    assetType: null,
+                },
+                loading: {
+                    deletePortfolio: false,
+                    savePortfolio: false,
+                }
             }
         },
 
         created() {
-            this.assetType = this.assetTypes[0];
-            this.currency = { text: this.defaultCurrency, value: this.defaultCurrency };
+            this.userInput.assetType = this.assetTypes[0];
+            this.userInput.currency = { text: this.userDefaultCurrency, value: this.userDefaultCurrency };
             this.cachedPortfolioName = this.portfolio.name;
         },
 
@@ -122,12 +134,15 @@
                     return { value: currency, text: currency }
                 });
             },
-            defaultCurrency() {
-                return this.$store.state.user.settings['default-currency'];
+            userDefaultCurrency() {
+                return this.$store.getters.user.settings['defaultCurrency'];
             },
             offlineMode() {
                 return this.$store.state.offlineMode;
             },
+            loadingAny() {
+                return this.loading.deletePortfolio || this.loading.savePortfolio;
+            }
         },
 
         methods: {
@@ -135,22 +150,51 @@
                 this.editable = true;
                 this.$emit('editable', this.editable);
             },
-            save() {
-                // TODO: Cache old portfolio name
-                this.loading = true;
-                this.$store.dispatch('updatePortfolio',{ index: this.index, portfolioName: this.cachedPortfolioName, portfolio: this.portfolio }).then(() => {
-                    this.loading = false;
-                    this.cachedPortfolioName = this.portfolio.name;
+            savePortfolio() {
+                if(this.portfolio.name.length == 0) return 0;
+                this.loading.savePortfolio = true;
+                this.$store.dispatch('updatePortfolio', { index: this.index, portfolioName: this.cachedPortfolioName, portfolio: this.portfolio }).then(() => {
+                    this.loading.savePortfolio = false;
                     this.editable = false;
                     this.$emit('editable', this.editable);
+                    this.cachedPortfolioName = this.portfolio.name;
                 }).catch(() => {
-                    this.loading = false;
+                    this.loading.savePortfolio = false;
                 });
-                //EventBus.$emit('update-portfolio'); // Plot.ly Pie-chart event
             },
-            addAsset(tickerId) {
-                this.portfolio.assets.push({ identifier: tickerId, amount: '', custom: false });
-                this.$emit('addAssetToActive', tickerId);
+            deletePortfolio() {
+                this.loading.deletePortfolio = true;
+                this.$store.dispatch('deletePortfolio', { index: this.index, portfolioName: this.cachedPortfolioName }).then(() => {
+                    this.loading.deletePortfolio = false;
+                }).catch(() => {
+                    this.loading.deletePortfolio = false;
+                });
+            },
+            addCoin(tickerId) {
+                this.portfolio.coins.push({ identifier: tickerId, amount: '' });
+            },
+            addAsset() {
+                if(this.userInput.assetType.value == 'fiat') {
+                    this.portfolio.fiat.push({
+                        identifier: this.userInput.name,
+                        amount: this.userInput.amount,
+                        currency: this.userInput.currency.value
+                    });
+                    this.clearUserInput();
+                } else if(this.userInput.assetType.value == 'custom') {
+                    this.portfolio.customAssets.push({
+                        identifier: this.userInput.name,
+                        amount: this.userInput.amount,
+                        price: this.userInput.price,
+                        currency: this.userInput.currency.value
+                    });
+                    this.clearUserInput();
+                }
+            },
+            clearUserInput() {
+                this.userInput.name = '';
+                this.userInput.amount = '';
+                this.userInput.price = '';
             }
         },
 

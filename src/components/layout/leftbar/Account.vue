@@ -89,7 +89,7 @@
                 });
             },
             goOffline() {
-                this.$store.dispatch('goOffline');
+                this.$store.commit('setOfflineMode', true);
             },
             getPortfolios() {
                 this.$store.dispatch('getPortfolios');

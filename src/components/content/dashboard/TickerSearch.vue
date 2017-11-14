@@ -3,12 +3,12 @@
         <div class="m-input-group m-input-group-flat">
             <input type="text" v-model="value" @input="changed" @focus="active = true" ref="input" required>
             <span class="bar"></span>
-            <label>Search and add assets</label>
+            <label>Search and add coin</label>
         </div>
 
         <div v-show="(suggestions.length > 0) && active" class="search-dropdown" ref="dropdown">
             <div v-for="ticker in suggestions" @click="add(ticker.id)" class="search-dropdown__item">
-                <span class="cc ticker-logo-icon" :class="ticker.symbol" :style="{ 'color': '#'+getTickerColor(ticker.id) }"></span>
+                <span class="cc ticker-logo-icon" :class="ticker.symbol" :style="{ 'color': '#'+getColorFromText(ticker.id) }"></span>
                 {{ ticker.name }}
             </div>
         </div>
@@ -17,12 +17,12 @@
 
 <script>
     import { mixin as clickaway } from 'vue-clickaway';
-    import Charts from '../../../charts'
+    import filters from '../../../mixins/filters'
 
     export default {
-        props: [ 'assets' ],
+        props: [ 'coins' ],
 
-        mixins: [ clickaway ],
+        mixins: [ clickaway, filters ],
 
         data() {
             return {
@@ -40,7 +40,7 @@
         },
 
         watch: {
-            assets() {
+            coins() {
                 this.changed();
             }
         },
@@ -56,7 +56,7 @@
                 for(let i = 0; i < this.tickers.length; i++) {
                     let lowerCaseSearchString = this.value.toLowerCase();
                     if(this.tickers[i].name.toLowerCase().startsWith(lowerCaseSearchString) || this.tickers[i].symbol.toLowerCase().startsWith(lowerCaseSearchString)) {
-                        if(!this.assets.find(asset => asset.identifier == this.tickers[i].id)) {
+                        if(!this.coins.find(asset => asset.identifier == this.tickers[i].id)) {
                             this.$set(this.suggestions, count++, this.tickers[i]);
                         }
                     }
@@ -75,10 +75,6 @@
 
             clickAway() {
                 this.active = false;
-            },
-
-            getTickerColor(id) {
-                return Charts.getColorFromText(id);
             }
         },
     }

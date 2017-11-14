@@ -4,11 +4,16 @@
 
         <div class="row currency-settings">
             <div class="col-xl-8">
-                    <select-dropdown v-model="defaultCurrency" :option-list="defaultCurrencyOptions">Default Currency</select-dropdown>
-                    <small class="select-hint">The primary currency. Used to display the latest prices and also used in most charts.</small>
+                <select-dropdown v-model="defaultCurrency" :option-list="defaultCurrencyOptions">Default Currency</select-dropdown>
+                <small class="select-hint">The primary currency. Used to display the latest prices and also used in most charts.</small>
 
-                    <multi-select-dropdown v-model="currencies" :option-list="additionalCurrenciesOptions">Additional Currencies</multi-select-dropdown>
-                    <small class="select-hint">Portfolio values and asset values will also be shown in these currencies.</small>
+                <multi-select-dropdown v-model="currencies" :option-list="additionalCurrenciesOptions">Additional Currencies</multi-select-dropdown>
+                <small class="select-hint">Portfolio values and asset values will also be shown in these currencies.</small>
+
+                <button class="m-button m-button-block" @click="saveSettings" :disabled="loading" v-if="loggedIn">
+                    <beating-heart v-if="loading"></beating-heart>
+                    <template v-else>Save Settings</template>
+                </button>
             </div>
         </div>
 
@@ -16,15 +21,23 @@
 </template>
 
 <script>
+    import { EventBus } from '../../../EventBus'
     import SelectDropdown from '../../common/SelectDropdown.vue'
     import MultiSelectDropdown from '../../common/MultiSelectDropdown.vue'
+    import BeatingHeart from '../../common/BeatingHeart.vue'
 
     export default {
-        props: {
-
+        data() {
+            return {
+                loading: false
+            }
         },
 
         computed: {
+            loggedIn() {
+                return this.$store.state.loggedIn;
+            },
+
             allCurrencyOptions() {
                 let allCurrencies = this.$store.getters.allCurrencies.map(currency => {
                     return { value: currency, text: currency }
@@ -49,7 +62,7 @@
 
             currencies: {
                 get() {
-                    return this.$store.state.user.settings['currencies'].map(currency => {
+                    return this.$store.getters.user.settings['currencies'].map(currency => {
                         return { value: currency, text: currency }
                     });
                 },
@@ -61,8 +74,8 @@
             defaultCurrency: {
                 get() {
                     return {
-                        value: this.$store.state.user.settings['default-currency'],
-                        text: this.$store.state.user.settings['default-currency']
+                        value: this.$store.getters.user.settings['defaultCurrency'],
+                        text: this.$store.getters.user.settings['defaultCurrency']
                     };
                 },
                 set(currency) {
@@ -71,7 +84,20 @@
             }
         },
 
-        components: { SelectDropdown, MultiSelectDropdown }
+        methods: {
+            saveSettings() {
+                this.loading = true;
+                this.$store.dispatch('updateSettings').then(() => {
+                    this.loading = false;
+                    EventBus.$emit('notify', { message: 'Settings saved successfully', duration: 2000 });
+                }).catch(() => {
+                    this.loading = false;
+                    EventBus.$emit('notify', { message: 'Could not save settings', duration: 2000 })
+                });
+            }
+        },
+
+        components: { SelectDropdown, MultiSelectDropdown, BeatingHeart }
     }
 </script>
 

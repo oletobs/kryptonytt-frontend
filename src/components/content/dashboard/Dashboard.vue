@@ -15,11 +15,11 @@
                                 <small>Porfolio(s)</small>
                             </div>
                             <div class="col-auto sub-header">
-                                <div>{{ cryptoExposure }}</div>
+                                <div>{{ cryptoExposure | headify }}</div>
                                 <small>Percent Crypto Exposure</small>
                             </div>
                             <div class="col-auto sub-header">
-                                <div>{{ statistics.totalAssets }}</div>
+                                <div>{{ statistics.totalCryptoCoins + statistics.totalCustomAssets }}</div>
                                 <small>Asset(s)</small>
                             </div>
                         </div>
@@ -50,12 +50,12 @@
 
                     <div class="market-value" slot="side">
                         <div class="default-currency">
-                            {{ getCurrencySymbol(userCurrencies[0]) }}{{ statistics.marketValueTotal[userCurrencies[0]] | financify }}
+                            {{ getCurrencySymbol(userDefaultCurrency) }}{{ statistics.marketValueTotal * rates[userDefaultCurrency] | financify }}
                         </div>
                         <small>Total Market Value</small>
                         <ul class="list-group list-group-fill list-group-small">
-                            <li v-for="(marketValue, currency) in statistics.marketValueTotal" class="list-group-item" v-if="currency != userCurrencies[0]">
-                                {{ getCurrencySymbol(currency) }}{{ marketValue | financify }}
+                            <li v-for="currency in userCurrencies" class="list-group-item" v-if="currency != userDefaultCurrency">
+                                {{ getCurrencySymbol(currency) }}{{ statistics.marketValueTotal * rates[currency] | financify }}
                             </li>
                         </ul>
                     </div>
@@ -72,7 +72,7 @@
 
                     <div slot="side" class="value-breakdown">
                         <div v-for="assetTypeMarketValue in statistics.marketValuePerAssetType">
-                            <div class="value">{{ getCurrencySymbol(userCurrencies[0]) }}{{ assetTypeMarketValue[1] | financify }}</div>
+                            <div class="value">{{ getCurrencySymbol(userDefaultCurrency) }}{{ assetTypeMarketValue[1] | financify }}</div>
                             <small>{{ assetTypeMarketValue[0] }}</small>
                         </div>
                     </div>
@@ -89,7 +89,7 @@
 
                     <div slot="side" class="value-breakdown">
                         <div v-for="portfolioMarketValue in statistics.marketValuePerPortfolio">
-                            <div class="value">{{ getCurrencySymbol(userCurrencies[0]) }}{{ portfolioMarketValue[1] | financify }}</div>
+                            <div class="value">{{ getCurrencySymbol(userDefaultCurrency) }}{{ portfolioMarketValue[1] | financify }}</div>
                             <small>{{ portfolioMarketValue[0] }}</small>
                         </div>
                     </div>
@@ -134,7 +134,7 @@
                         :rates="rates"
                         :tickerMap="tickerMap"
                         :index="index"
-                        :key="index"
+                        :key="portfolio.id"
                 >
                 </portfolio>
 
@@ -173,47 +173,41 @@
         computed: {
             statistics() {
                 let statistics = {
-                    marketValueTotal: {},
-                    marketValuePerPortfolio: [],  // Formatted for use with google charts
-                    marketValuePerAssetType: [    // Formatted for use with google charts
-                        ['Crypto', 0],
-                        ['Fiat', 0],
-                        ['Custom Asset', 0]
-                    ],
-                    totalAssets: 0
+                    marketValueTotal: 0,
+                    marketValuePerPortfolio: [], // Formatted for use with google charts
+                    marketValuePerAssetType: [ ['Crypto', 0], ['Custom Assets', 0], ['Fiat', 0] ], // Formatted for use with google charts
+                    totalCryptoCoins: 0,
+                    totalCustomAssets: 0,
                 };
 
-                this.userCurrencies.forEach(currency => statistics.marketValueTotal[currency] = 0);
-
-                this.portfolios.forEach((portfolio, index) => {
-                    statistics.marketValuePerPortfolio.push([portfolio.name,0]);
-                    statistics.totalAssets += portfolio.assets.length;
-
-                    portfolio.assets.forEach(asset => {
-
-                        // Have to use different calculations if default user currency is btc, as the dollar rate may differ slightly between apis
-                        if(this.userCurrencies[0] == 'BTC') {
-                            if(!asset.custom) {
-                                statistics.marketValuePerAssetType[0][1] += asset.amount * this.tickerMap.get(asset.identifier).price_btc;
-                            } //TODO: add for custom and fiat
-                            statistics.marketValuePerPortfolio[index][1] += asset.amount * this.tickerMap.get(asset.identifier).price_btc;
-                        } else {
-                            if(!asset.custom) {
-                                statistics.marketValuePerAssetType[0][1] += asset.amount * this.tickerMap.get(asset.identifier).price_usd * this.rates[this.userCurrencies[0]];
-                            } //TODO: add for custom and fiat
-                            statistics.marketValuePerPortfolio[index][1] += asset.amount * this.tickerMap.get(asset.identifier).price_usd * this.rates[this.userCurrencies[0]];
-                        }
-
-                        this.userCurrencies.forEach(currency => {
-                            if(currency == 'BTC') {
-                                statistics.marketValueTotal[currency] += asset.amount * this.tickerMap.get(asset.identifier).price_btc;
-                            } else {
-                                statistics.marketValueTotal[currency] += asset.amount * this.tickerMap.get(asset.identifier).price_usd * this.rates[currency];
-                            }
-                        });
-
+                this.portfolios.forEach(portfolio => {
+                    let coinValueUsd = 0;
+                    portfolio.coins.forEach(coin => {
+                        coinValueUsd += coin.amount * this.tickerMap.get(coin.identifier).price_usd;
                     });
 
+                    let fiatValueUsd = 0;
+                    portfolio.fiat.forEach(fiat => {
+                        fiatValueUsd += fiat.amount / this.rates[fiat.currency];
+                    });
+
+                    let customAssetValueUsd = 0;
+                    portfolio.customAssets.forEach(customAsset => {
+                        customAssetValueUsd += (customAsset.amount * customAsset.price) / this.rates[customAsset.currency];
+                    });
+
+                    // Total Market Value in usd
+                    statistics.marketValueTotal += coinValueUsd+fiatValueUsd+customAssetValueUsd;
+
+                    // Market values in users default currency
+                    statistics.marketValuePerPortfolio.push([portfolio.name,(coinValueUsd+fiatValueUsd+customAssetValueUsd) * this.rates[this.userDefaultCurrency]]);
+                    statistics.marketValuePerAssetType[0][1] += coinValueUsd * this.rates[this.userDefaultCurrency];
+                    statistics.marketValuePerAssetType[1][1] += fiatValueUsd * this.rates[this.userDefaultCurrency];
+                    statistics.marketValuePerAssetType[2][1] += customAssetValueUsd * this.rates[this.userDefaultCurrency];
+
+                    // Number of coins and custom asset
+                    statistics.totalCryptoCoins += portfolio.coins.length;
+                    statistics.totalCustomAssets += portfolio.customAssets.length;
                 });
 
                 return statistics;
@@ -228,20 +222,30 @@
             },
 
             cryptoExposure() {
-                return this.statistics.marketValueTotal[this.userCurrencies[0]] == 0 ? 0 : (this.statistics.marketValuePerAssetType[0][1] / this.statistics.marketValueTotal[this.userCurrencies[0]]) * 100;
+                if(this.statistics.marketValueTotal == 0) {
+                    return 0;
+                } else {
+                    return (this.statistics.marketValuePerAssetType[0][1] / (this.statistics.marketValueTotal*this.rates[this.userDefaultCurrency])) * 100;
+                }
             },
 
             userCurrencies() {
                 return this.$store.getters.userCurrencies;
             },
 
+            userDefaultCurrency() {
+                return this.userCurrencies[0];
+            },
+
             tickerMap() {
                 return this.$store.getters.tickerMap;
             },
 
-            ...mapState({
-                portfolios: state => state.user.portfolios,
+            portfolios() {
+                return this.$store.getters.user.portfolios;
+            },
 
+            ...mapState({
                 loggedIn: state => state.loggedIn,
 
                 cryptoGlobal: state => state.data.crypto.global

@@ -19,12 +19,13 @@
                     class="col-auto side-nav"
                     :fiat-last-updated="fiatLastUpdated"
                     :crypto-last-updated="cryptoLastUpdated"
+                    :api-loading="loading.externalApi"
                     :show="showSideNav">
             </left-bar>
 
             <keep-alive>
 
-                <router-view class="col main-content" :rates="rates" v-if="!loading && (loggedIn || offlineMode)"></router-view>
+                <router-view class="col main-content" :rates="rates" v-if="!loadingAny && (loggedIn || offlineMode)"></router-view>
 
             </keep-alive>
 

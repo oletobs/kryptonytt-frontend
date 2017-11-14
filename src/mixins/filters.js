@@ -1,5 +1,6 @@
 import Format from '../Format.js'
 import getSymbolFromCurrency from 'currency-symbol-map'
+import { getColorFromText } from '../util/charts'
 
 export default {
     filters: {
@@ -25,6 +26,9 @@ export default {
     methods: {
         getCurrencySymbol(currency) {
             return getSymbolFromCurrency(currency);
+        },
+        getColorFromText(text) {
+            return getColorFromText(text);
         }
     }
 };

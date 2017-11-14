@@ -77,11 +77,6 @@
                             Dashboard
                         </router-link>
 
-                        <router-link class="m-list-group-item" to="/performance">
-                            <i class="material-icons">timeline</i>
-                            Performance
-                        </router-link>
-
                         <router-link class="m-list-group-item" :to="{ name: 'settings' }">
                             <i class="material-icons">settings</i>
                             Settings
@@ -100,7 +95,11 @@
 
             <div class="api-info">
 
-                <i class="material-icons api-info__clock">update</i>
+                <i class="material-icons api-info__clock">
+                    <template v-if="apiLoading">sync</template>
+                    <template v-else-if="autoSyncApi">update</template>
+                    <template v-else>sync_disabled</template>
+                </i>
 
                 <div class="api-info-text">
 
@@ -131,7 +130,7 @@
     export default {
         mixins: [ filters ],
 
-        props: [ 'show', 'fiatLastUpdated', 'cryptoLastUpdated' ],
+        props: [ 'show', 'fiatLastUpdated', 'cryptoLastUpdated', 'apiLoading' ],
 
         data() {
             return {
@@ -149,12 +148,12 @@
             },
 
             username() {
-                return this.$store.state.user.username;
+                return this.$store.getters.user.username;
             },
 
             nightMode: {
                 get() {
-                    return this.$store.state.user.settings['night-mode'];
+                    return this.$store.getters.user.settings['nightMode'];
                 },
                 set() {
                     this.$store.dispatch('toggleNightMode');
@@ -163,7 +162,7 @@
 
             autoSyncApi: {
                 get() {
-                    return this.$store.state.user.settings['auto-sync-api'];
+                    return this.$store.getters.user.settings['autoSyncApi'];
                 },
                 set() {
                     this.$store.dispatch('toggleAutoSyncApi');
@@ -177,7 +176,7 @@
                 this.showSettings = false;
             },
             goOnline() {
-                this.$store.dispatch('goOnline');
+                this.$store.commit('setOfflineMode', false);
                 this.showSettings = false;
             }
         },

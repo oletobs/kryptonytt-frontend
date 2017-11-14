@@ -11,15 +11,17 @@ Vue.use(Vuex);
 const store = new Vuex.Store({
     state: {
         user: {
-            username:'',
-            authToken: '',
-            portfolios: [],
-            settings: {
-                'default-currency': 'USD',
-                'currencies': [],
-                'night-mode': true,
-                'auto-sync-api': false
-            }
+            online: null,
+            offline: {
+                username:'Anonymous',
+                portfolios: [],
+                settings: {
+                    'defaultCurrency': 'USD',
+                    'currencies': [],
+                    'nightMode': true,
+                    'autoSyncApi': true
+                }
+            },
         },
         loggedIn: false,
         offlineMode: false,
@@ -37,12 +39,19 @@ const store = new Vuex.Store({
     },
 
     getters: {
-        settings: state => {
-            return state.user.settings;
+        user: state => {
+            if(state.loggedIn) {
+                return state.user.online;
+            } else {
+                return state.user.offline;
+            }
         },
-        userCurrencies: state => {
-            let currencies = [ state.user.settings['default-currency'] ];
-            return currencies.concat(state.user.settings.currencies);
+        settings: (state, getters) => {
+            return getters.user.settings;
+        },
+        userCurrencies: (state, getters) => {
+            let currencies = [ getters.settings['defaultCurrency'] ];
+            return currencies.concat(getters.settings.currencies);
         },
         allCurrencies: state => {
             let allCurrencies = Object.keys(state.data.fiat.rates);
@@ -58,32 +67,67 @@ const store = new Vuex.Store({
         }
     },
 
-    plugins: [createPersistedState()],
-
     mutations: {
-        addWebToken(state, webToken){
-            state.user.authToken = webToken;
+        setAuthToken(state, authToken) {
+            state.user.online.authToken = authToken;
         },
-        removeWebToken(state){
-            state.user.authToken = '';
+        deletePassword(state) {
+            delete state.user.online.password;
         },
         setLoggedIn(state, loggedIn) {
             state.loggedIn = loggedIn;
         },
+        setUser(state, user) {
+            state.user.online = user;
+        },
         setUsername(state, username) {
-            state.user.username = username;
+            if(state.loggedIn) {
+                state.user.online.username = username;
+            } else {
+                state.user.offline.username = username;
+            }
         },
         setPortfolios(state, portfolios) {
-            state.user.portfolios = portfolios;
+            if(state.loggedIn) {
+                Vue.set(state.user.online, 'portfolios', portfolios);
+            } else {
+                Vue.set(state.user.offline, 'portfolios', portfolios);
+            }
+        },
+        setSettings(state, settings) {
+            if(state.loggedIn) {
+                Vue.set(state.user.online, 'settings', settings);
+            } else {
+                Vue.set(state.user.offline, 'settings', settings);
+            }
         },
         removePortfolios(state) {
-            state.user.portfolios = [];
+            if(state.loggedIn) {
+                state.user.online.portfolios = [];
+            } else {
+                state.user.offline.portfolios = [];
+            }
         },
         addPortfolio(state, portfolio) {
-            state.user.portfolios.push(portfolio);
+            if(state.loggedIn) {
+                state.user.online.portfolios.push(portfolio);
+            } else {
+                state.user.offline.portfolios.push(portfolio);
+            }
         },
         setPortfolio(state, {index, portfolio}) {
-            Vue.set(state.user.portfolios, index, portfolio);
+            if(state.loggedIn) {
+                Vue.set(state.user.online.portfolios, index, portfolio);
+            } else {
+                Vue.set(state.user.offline.portfolios, index, portfolio);
+            }
+        },
+        removePortfolio(state, index) {
+            if(state.loggedIn) {
+                state.user.online.portfolios.splice(index, 1);
+            } else {
+                state.user.offline.portfolios.splice(index, 1);
+            }
         },
         setFiatRates(state, rates) {
             state.data.fiat.rates = rates;
@@ -101,16 +145,32 @@ const store = new Vuex.Store({
             Vue.set(state.data.fiat.rates, currency, rate);
         },
         setNightMode(state, nightMode) {
-            state.user.settings['night-mode'] = nightMode;
+            if(state.loggedIn) {
+                state.user.online.settings['nightMode'] = nightMode;
+            } else {
+                state.user.offline.settings['nightMode'] = nightMode;
+            }
         },
         setAutoSyncApi(state, autoSyncApi) {
-            state.user.settings['auto-sync-api'] = autoSyncApi;
+            if(state.loggedIn) {
+                state.user.online.settings['autoSyncApi'] = autoSyncApi;
+            } else {
+                state.user.offline.settings['autoSyncApi'] = autoSyncApi;
+            }
         },
         setDefaultCurrency(state, defaultCurrency) {
-            state.user.settings['default-currency'] = defaultCurrency;
+            if(state.loggedIn) {
+                state.user.online.settings['defaultCurrency'] = defaultCurrency;
+            } else {
+                state.user.offline.settings['defaultCurrency'] = defaultCurrency;
+            }
         },
         setCurrencies(state, currencies) {
-            state.user.settings['currencies'] = currencies;
+            if(state.loggedIn) {
+                state.user.online.settings['currencies'] = currencies;
+            } else {
+                state.user.offline.settings['currencies'] = currencies;
+            }
         },
         setOfflineMode(state, offline) {
             state.offlineMode = offline;
@@ -121,11 +181,17 @@ const store = new Vuex.Store({
     },
     actions: {
         toggleNightMode(context) {
-            context.commit('setNightMode',!context.state.user.settings['night-mode']);
+            context.commit('setNightMode',!context.getters.settings['nightMode']);
         },
 
         toggleAutoSyncApi(context) {
-            context.commit('setAutoSyncApi',!context.state.user.settings['auto-sync-api']);
+            context.commit('setAutoSyncApi',!context.getters.settings['autoSyncApi']);
+        },
+
+        addUsdBtcRate(context) {
+            console.log(context.getters.tickerMap.get('bitcoin').price_usd)
+            let rate = 1 / context.getters.tickerMap.get('bitcoin').price_usd;
+            context.commit('addFiatRate', { currency: 'BTC', rate: rate});
         },
 
         getFiatData(context) {
@@ -167,20 +233,31 @@ const store = new Vuex.Store({
             });
         },
 
-        goOffline(context) {
-            context.commit('setOfflineMode', true);
-            context.commit('setUsername', 'Anonymous');
-        },
-
-        goOnline(context) {
-            context.commit('setOfflineMode', false);
-            context.commit('setUsername', '');
-        },
-
-        signUp(context, userInput){
+        getAllExternalApiData(context) {
             return new Promise((resolve, reject) => {
-                kryptonytt.signUp(userInput.username, userInput.password).then(() => {
-                    context.dispatch('login',userInput).then(() => {
+                let getFiatRates = context.dispatch('getFiatData');
+                let getCryptoTickers = context.dispatch('getCryptoData');
+                let getCryptoGlobal = context.dispatch('getCryptoGlobalData');
+
+                Promise.all([getFiatRates, getCryptoTickers, getCryptoGlobal]).then(() => {
+                    context.dispatch('addUsdBtcRate');
+                    resolve();
+                }).catch((error) => {
+                    console.log(error);
+                    reject();
+                });
+            });
+        },
+
+        signUp(context, {username, password}){
+            let user = {
+                username: username,
+                password: password,
+            };
+
+            return new Promise((resolve, reject) => {
+                kryptonytt.signUp(user).then(() => {
+                    context.dispatch('login',user).then(() => {
                         resolve();
                     }).catch(() => {
                         reject();
@@ -192,12 +269,13 @@ const store = new Vuex.Store({
             })
         },
 
-        login(context, userInput){
+        login(context, {username, password}){
             return new Promise((resolve, reject) => {
-                kryptonytt.login(userInput.username, userInput.password).then(response => {
-                    context.commit('addWebToken', response.headers['authorization']);
-                    context.commit('setUsername', userInput.username);
+                kryptonytt.login(username, password).then(response => {
+                    context.commit('setUser', response.data);
+                    context.commit('deletePassword'); // TODO: Remove
                     context.commit('setLoggedIn', true);
+                    context.commit('setAuthToken', response.headers['authorization']);
                     resolve();
                 }).catch(error => {
                     console.log(error.response);
@@ -207,14 +285,32 @@ const store = new Vuex.Store({
         },
 
         logout(context){
-            context.commit('removeWebToken');
-            context.commit('setUsername', '');
             context.commit('setLoggedIn', false);
-            context.commit('removePortfolios');
+            context.commit('setUser', null);
+        },
+
+        getUser(context) {
+            kryptonytt.getUser(context.state.user.online.authToken).then(response => {
+                context.commit('setUser', response.data);
+            }).catch(error => {
+                console.log(error.response);
+            });
+        },
+
+        updateSettings(context) {
+            return new Promise((resolve, reject) => {
+                kryptonytt.setUser(context.state.user.online.settings, context.state.user.online.authToken).then(response => {
+                    context.commit('setSettings', response.data);
+                    resolve();
+                }).catch(error => {
+                    console.log(error);
+                    reject();
+                });
+            });
         },
 
         getPortfolios(context) {
-            kryptonytt.getPortfolios(context.state.user.authToken).then(response => {
+            kryptonytt.getPortfolios(context.state.user.online.authToken).then(response => {
                 context.commit('setPortfolios', response.data);
             }).catch(error => {
                 console.log(error.response);
@@ -225,11 +321,13 @@ const store = new Vuex.Store({
             let portfolio = {
                 name: portfolioName,
                 public: false,
-                assets: []
+                coins: [],
+                customAssets: [],
+                fiat: []
             };
 
             if(context.state.loggedIn) {
-                kryptonytt.addPortfolio(context.state.user.authToken, portfolio).then(response => {
+                kryptonytt.addPortfolio(portfolio, context.state.user.online.authToken).then(response => {
                     context.commit('addPortfolio', response.data);
                     EventBus.$emit('notify', { message: 'Portfolio added', duration: 2000 });
                 }).catch(error => {
@@ -244,9 +342,9 @@ const store = new Vuex.Store({
         updatePortfolio(context, { index, portfolioName, portfolio }) {
             return new Promise((resolve, reject) => {
                 if (context.state.loggedIn) {
-                    kryptonytt.updatePortfolio(context.state.user.authToken, portfolioName, portfolio).then(response => {
+                    kryptonytt.updatePortfolio(portfolioName, portfolio, context.state.user.online.authToken).then(response => {
                         context.commit('setPortfolio', { index: index, portfolio: response.data});
-                        EventBus.$emit('notify', {message: 'Portfolio updated', duration: 2000});
+                        EventBus.$emit('notify', {message: 'Portfolio updated successfully', duration: 2000});
                         resolve();
                     }).catch(error => {
                         console.log(error.response);
@@ -258,9 +356,29 @@ const store = new Vuex.Store({
                     resolve();
                 }
             });
+        },
+
+        deletePortfolio(context, { index, portfolioName }) {
+            return new Promise((resolve, reject) => {
+                if (context.state.loggedIn) {
+                    kryptonytt.deletePortfolio(portfolioName, context.state.user.online.authToken).then(() => {
+                        context.commit('removePortfolio', index);
+                        EventBus.$emit('notify', {message: 'Portfolio deleted successfully', duration: 2000});
+                        resolve();
+                    }).catch(error => {
+                        console.log(error.response);
+                        EventBus.$emit('notify', {message: 'Could not delete portfolio', duration: 2000});
+                        reject();
+                    });
+                } else {
+                    context.commit('removePortfolio', index);
+                }
+            });
         }
 
-    }
+    },
+
+    plugins: [createPersistedState()]
 
 });
 

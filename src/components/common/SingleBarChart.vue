@@ -1,42 +1,36 @@
 <template>
     <div class="single-bar-chart">
-
-        <div
-                v-for="o in data"
-                @mouseover="toggleActive(o)"
-                @mouseleave="toggleActive(o)"
-                :class="isActive(o) ? 'active' : ''"
-                :style="{ width: o.percent + '%', 'background-color': '#' + o.color }"
-                :ref="o.id"
-                :title="tooltip(o)"
-        >
-        </div>
-
+        <template v-for="(dataSet, i) in dataSets">
+            <div
+                    v-for="(data, j) in dataSet"
+                    @mouseover="active([i,j])"
+                    @mouseleave="active([i,j])"
+                    :style="{ width: calculatePercent(data[1]) + '%', 'background-color': '#' + getColorFromText(data[0]) }"
+                    :ref="i+''+j"
+                    :title="tooltip(data[0],data[1])"
+            >
+            </div>
+        </template>
     </div>
 </template>
 
 <script>
+    import filters from '../../mixins/filters'
+
     export default {
-        props: {
-            data: {
-                type: Array,
-                required: true
-            },
-            active: {
-                type: Object,
-                required: true
-            }
-        },
+        props: [ 'dataSets', 'totalValue' ],
+
+        mixins: [ filters ],
 
         methods: {
-            toggleActive(o) {
-                this.$emit('toggleActive', o.id)
+            calculatePercent(value) {
+                return ((value / this.totalValue) * 100);
             },
-            isActive(o) {
-                return this.active[o.id];
+            active(indexes) {
+                this.$emit('active', indexes);
             },
-            tooltip(o) {
-                return o.name+' - '+o.percent.toFixed(2)+'%';
+            tooltip(text, value) {
+                return text+' - '+this.calculatePercent(value).toFixed(2)+'%';
             }
         },
     }
@@ -48,7 +42,7 @@
         align-items: flex-end;
         width: 100%;
 
-        .active {
+        div:hover {
             transition:all 0.1s ease;
             height: 100%;
             box-shadow: 0 0 3px $night-glow;

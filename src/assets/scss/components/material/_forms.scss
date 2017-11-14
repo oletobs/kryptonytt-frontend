@@ -3,6 +3,11 @@
   position: relative;
   margin-bottom: 2.2rem;
 
+  &.m-input-group-table {
+    margin-bottom: -6px !important;
+    margin-top: -5px !important;
+  }
+
   &.m-input-group-flat {
     margin-bottom: 0;
   }
@@ -11,7 +16,7 @@
     background-color: transparent;
     display: block;
     border: none;
-    border-bottom: 1px solid $white;
+    border-bottom: 1px solid $night-gray;
     color: white;
     width: 100%;
     padding: 5px 5px 5px 5px;

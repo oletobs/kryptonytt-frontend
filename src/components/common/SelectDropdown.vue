@@ -71,6 +71,15 @@
         position: relative;
         width: 100%;
 
+        &.m-select-group-table {
+            margin-bottom: -6px !important;
+            margin-top: -5px !important;
+
+            input {
+                text-align: right;
+            }
+        }
+
         .select {
             cursor: pointer;
         }

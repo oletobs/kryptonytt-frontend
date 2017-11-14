@@ -28,43 +28,69 @@ new Vue({
                 timer: null,
                 message: ''
             },
+            autoSyncApiTimer: null,
+            loading: {
+                externalApi: false
+            }
         }
     },
 
-    computed:  mapState({
-        cryptoLastUpdated: state => state.data.crypto.lastUpdated,
+    computed: {
+        loadingAny() {
+            return this.loading.externalApi;
+        },
 
-        fiatLastUpdated: state => state.data.fiat.lastUpdated,
+        nightMode() {
+            return this.$store.getters.settings['nightMode'];
+        },
 
-        tickers: state => state.data.crypto.tickers,
+        autoSyncApi() {
+            return this.$store.getters.settings['autoSyncApi'];
+        },
 
-        rates: state => state.data.fiat.rates,
-
-        nightMode: state => state.user.settings['night-mode'],
-
-        loggedIn: state => state.loggedIn,
-
-        offlineMode: state => state.offlineMode,
-
-        cachedData() {
+        cachedExternalApiData() {
             return this.tickers != null && this.rates != null;
+        },
+
+        ...mapState({
+            cryptoLastUpdated: state => state.data.crypto.lastUpdated,
+
+            fiatLastUpdated: state => state.data.fiat.lastUpdated,
+
+            tickers: state => state.data.crypto.tickers,
+
+            rates: state => state.data.fiat.rates,
+
+            loggedIn: state => state.loggedIn,
+
+            offlineMode: state => state.offlineMode
+        })
+    },
+
+    watch: {
+        autoSyncApi() {
+            clearInterval(this.autoSyncApiTimer);
+            if(this.autoSyncApi) {
+                console.log('watcher true')
+                this.autoSyncApiTimer = setInterval(() => {
+                    this.getAllExternalApiData();
+                }, 300000);
+
+            } else {
+                console.log('watcher false')
+            }
         }
-    }),
+    },
 
     mounted() {
-        let getFiatRates = this.$store.dispatch('getFiatData');
-        let getCryptoTickers = this.$store.dispatch('getCryptoData');
-        let getCryptoGlobal = this.$store.dispatch('getCryptoGlobalData');
+        this.getAllExternalApiData();
 
-        if(this.cachedData) {
-            this.loading = false;
+        if(this.autoSyncApi) {
+            console.log('mounted true')
+            this.autoSyncApiTimer = setInterval(() => {
+                this.getAllExternalApiData();
+            }, 300000);
         }
-
-        Promise.all([getFiatRates, getCryptoTickers, getCryptoGlobal]).then(() => {
-            if(this.loading == true) {
-                this.loading = false;
-            }
-        });
 
         EventBus.$on('notify', this.notify);
     },
@@ -79,6 +105,15 @@ new Vue({
                 this.snackbar.show = false;
                 this.snackbar.message = '';
             }, duration);
+        },
+
+        getAllExternalApiData() {
+            this.loading.externalApi = true;
+            this.$store.dispatch('getAllExternalApiData').then(() => {
+                this.loading.externalApi = false;
+            }).catch(() => {
+                this.loading.externalApi = false;
+            });
         }
     }
 });

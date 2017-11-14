@@ -1,69 +1,44 @@
 import axios from 'axios';
 
-class Kryptonytt {
+const baseURL = 'https://alpha.kryptonytt.io:8443';
+const api = axios.create({ baseURL: baseURL });
 
-    static signUp(username,password) {
-        return axios.post('https://alpha.kryptonytt.io:8443/users/sign-up', {
-            username: username,
-            password: password
-        })
-    }
+const kryptonytt = {
+    signUp(user) {
+        return axios.post(baseURL+'/user/sign-up', user);
+    },
 
-    static login(username,password) {
-        return axios.post('https://alpha.kryptonytt.io:8443/login', {
-            username: username,
-            password: password
-        })
-    }
+    login(username,password) {
+        return axios.post(baseURL+'/login', { username: username, password: password });
+    },
 
-    static getPortfolios(token) {
-        let instance = axios.create({
-            baseURL: 'https://alpha.kryptonytt.io:8443/portfolios',
-            headers: {'Authorization': token}
-        });
+    getPortfolios(authToken) {
+        return api.get('portfolios', { headers: { 'Authorization': authToken } });
+    },
 
-        return instance.get();
-    }
+    addPortfolio(portfolio, authToken) {
+        return api.post('portfolios',portfolio, { headers: { 'Authorization': authToken } });
+    },
 
-    static addPortfolio(token,portfolio) {
-        let instance = axios.create({
-            baseURL: 'https://alpha.kryptonytt.io:8443',
-            headers: {'Authorization': token}
-        });
+    updatePortfolio(portfolioName, portfolio, authToken) {
+        return api.put('portfolios/'+portfolioName,portfolio, { headers: { 'Authorization': authToken } });
+    },
 
-        return instance.post('portfolios',portfolio);
-    }
+    deletePortfolio(portfolioName, authToken) {
+        return api.delete('portfolios/'+portfolioName, { headers: { 'Authorization': authToken } });
+    },
 
-    static updatePortfolio(token,portfolioName,portfolio) {
-        let instance = axios.create({
-            baseURL: 'https://alpha.kryptonytt.io:8443/portfolios',
-            headers: {'Authorization': token}
-        });
+    getPublicPortfolios() {
+        // TODO: Public Portfolios
+    },
 
-        return instance.put(portfolioName,portfolio);
-    }
+    getUser(authToken) {
+        return api.get('user', { headers: { 'Authorization': authToken } });
+    },
 
-    static getPublicPortfolios() {
+    setUser(user, authToken) { // TODO: currently only takes settings, will be changed to user
+        return api.put('user', user, { headers: { 'Authorization': authToken } });
+    },
+};
 
-    }
-
-    static getSettings(token) {
-        let instance = axios.create({
-            baseURL: 'https://alpha.kryptonytt.io:8443/users/settings',
-            headers: {'Authorization': token}
-        });
-
-        return instance.get();
-    }
-
-    static setSettings(token,settings) {
-        let instance = axios.create({
-            baseURL: 'https://alpha.kryptonytt.io:8443/users/settings',
-            headers: {'Authorization': token}
-        });
-
-        return instance.put(settings);
-    }
-}
-
-export default Kryptonytt;
+export default kryptonytt;

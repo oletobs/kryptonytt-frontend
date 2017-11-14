@@ -16,19 +16,21 @@
             </div>
 
             <div class="col-xl-8">
-                <portfolio-edit :portfolio="portfolio" :index="index" @addAssetToActive="addAssetToActive" @editable="toggleEditable"></portfolio-edit>
+                <portfolio-edit :portfolio="portfolio" :index="index" @editable="toggleEditable"></portfolio-edit>
             </div>
 
         </div>
 
         <div class="portfolio-table-container">
-            <div class="table-responsive">
-                <table class="table portfolio-table">
-                    <thead>
+
+            <table class="table portfolio-table">
+
+                <template v-if="portfolio.coins.length > 0">
+                <thead>
                     <tr>
-                        <th>Asset Name</th>
-                        <th class="u-w10r">Amount</th>
-                        <th class="u-w10r">{{ userCurrencies[0] }} Last Price</th>
+                        <th>Coin</th>
+                        <th class="u-w10r" colspan="2">Amount</th>
+                        <th class="u-w10r">Last Price</th>
                         <th class="u-w10r" v-for="currency in userCurrencies">
                             {{ currency }} Value
                         </th>
@@ -36,41 +38,96 @@
                         <th class="u-w5r">&Delta; 24H</th>
                         <th class="u-w5r">&Delta; 7D</th>
                     </tr>
-                    </thead>
-                    <tbody>
-                    <asset
-                            v-for="(asset, index) in portfolio.assets"
-                            :key="asset.identifier"
-                            :color="chartData[index].color"
+                </thead>
+                <tbody>
+                    <coin
+                            v-for="(coin, index) in portfolio.coins"
+                            :index="index"
                             :editable="editable"
-                            :asset="asset"
-                            :ticker="tickerMap.get(asset.identifier)"
+                            :coin="coin"
+                            :ticker="tickerMap.get(coin.identifier)"
                             :rates="rates"
-                            :active="active[asset.identifier]"
-                            :currencies="userCurrencies"
-                            @remove="removeAsset"
+                            :class="{ 'table-active': activeAssets[0][index] }"
+                            @remove="portfolio.coins.splice(index,1)"
                     >
-                    </asset>
-                    </tbody>
-                    <tfoot>
+                    </coin>
+                </tbody>
+                </template>
+
+                <template v-if="portfolio.customAssets.length > 0">
+                <thead>
                     <tr>
-                        <th colspan="3">Total</th>
-                        <th v-for="portfolioValue in portfolioValues">
-                            {{ getCurrencySymbol(portfolioValue.currency) }}{{ portfolioValue.value | financify }}
+                        <th>Custom Assets</th>
+                        <th class="u-w5r">Currency</th>
+                        <th class="u-w10r">Amount</th>
+                        <th class="u-w10r">Last Price</th>
+                        <th class="u-w10r" v-for="currency in userCurrencies">
+                            {{ currency }} Value
                         </th>
                         <th colspan="3"></th>
                     </tr>
-                    </tfoot>
-                </table>
-            </div>
+                </thead>
+                <tbody>
+                    <custom-asset
+                            v-for="(customAsset, index) in portfolio.customAssets"
+                            :editable="editable"
+                            :index="index"
+                            :custom-asset="customAsset"
+                            :rates="rates"
+                            :class="{ 'table-active': activeAssets[1][index] }"
+                            @remove="portfolio.customAssets.splice(index,1)"
+                    >
+                    </custom-asset>
+                </tbody>
+                </template>
+
+                <template v-if="portfolio.fiat.length > 0">
+                    <thead>
+                    <tr>
+                        <th>Fiat</th>
+                        <th class="u-w5r">Currency</th>
+                        <th class="u-w10r">Amount</th>
+                        <th class="u-w10r">Last Price</th>
+                        <th class="u-w10r" v-for="currency in userCurrencies">
+                            {{ currency }} Value
+                        </th>
+                        <th colspan="3"></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <fiat
+                            v-for="(fiat, index) in portfolio.fiat"
+                            :editable="editable"
+                            :index="index"
+                            :fiat="fiat"
+                            :rates="rates"
+                            :class="{ 'table-active': activeAssets[2][index] }"
+                            @remove="portfolio.fiat.splice(index,1)"
+                    >
+                    </fiat>
+                    </tbody>
+                </template>
+
+                <tfoot>
+                    <tr>
+                        <th colspan="4">Total</th>
+                        <th v-for="currency in userCurrencies">
+                            {{ getCurrencySymbol(currency) }}{{ statistics.marketValue * rates[currency] | financify }}
+                        </th>
+                        <th colspan="3"></th>
+                    </tr>
+                </tfoot>
+
+            </table>
 
             <single-bar-chart
-                    v-if="portfolioValues[0].value > 0"
+                    v-if="statistics.marketValue > 0"
                     class="portfolio-chart"
-                    :data="chartData"
-                    :active="active"
-                    @toggleActive="toggleActiveAsset">
+                    :dataSets="statistics.barChartData"
+                    :totalValue="statistics.marketValue"
+                    @active="toggleActiveAsset">
             </single-bar-chart>
+
         </div>
 
     </div>
@@ -78,14 +135,15 @@
 
 <script>
     import filters from '../../../mixins/filters'
-    import Charts from '../../../charts'
     import { EventBus } from '../../../EventBus'
-    import Asset from './Asset.vue'
+    import Coin from './Coin.vue'
+    import Fiat from './Fiat.vue'
+    import CustomAsset from './CustomAsset.vue'
     import SingleBarChart from '../../common/SingleBarChart.vue'
     import PortfolioEdit from './PortfolioEdit.vue'
 
     export default {
-        components: { Asset, SingleBarChart, PortfolioEdit },
+        components: { Coin, Fiat, CustomAsset, SingleBarChart, PortfolioEdit },
 
         props: [ 'portfolio', 'rates', 'tickerMap', 'index' ],
 
@@ -94,14 +152,8 @@
         data() {
             return {
                 editable: false,
-                active: {},
+                activeAssets: [[],[],[]]
             }
-        },
-
-        created() {
-            this.portfolio.assets.forEach(asset => {
-                this.$set(this.active, asset.identifier, false)
-            });
         },
 
         computed: {
@@ -109,42 +161,46 @@
                 return this.$store.getters.userCurrencies;
             },
 
-            portfolioValues() {
-                let sums = [];
-                this.userCurrencies.forEach(currency => {
-                    sums.push({ currency: currency, value: 0 })
-                });
-
-                this.portfolio.assets.forEach(asset => {
-                    sums.forEach(sum => {
-                        if(sum.currency == 'BTC') {
-                            sum.value += asset.amount * this.tickerMap.get(asset.identifier).price_btc;
-                        } else {
-                            sum.value += asset.amount * this.tickerMap.get(asset.identifier).price_usd * this.rates[sum.currency];
-                        }
-                    });
-                });
-
-                return sums;
+            userDefaultCurrency() {
+                return this.userCurrencies[0];
             },
 
-            chartData() {
-                return Charts.getChartData(this.portfolio.assets,this.tickerMap,this.portfolioValues[0].value,this.rates[this.userCurrencies[0]]);
+            statistics() {
+                let statistics = {
+                    marketValue: 0,
+                    coinValue: 0,
+                    fiatValue: 0,
+                    customAssetValue: 0,
+                    barChartData: [[],[],[]],
+                };
+
+                this.portfolio.coins.forEach(coin => {
+                    statistics.coinValue += coin.amount * this.tickerMap.get(coin.identifier).price_usd;
+                    statistics.barChartData[0].push([coin.identifier, coin.amount * this.tickerMap.get(coin.identifier).price_usd]);
+                });
+
+                this.portfolio.customAssets.forEach(customAsset => {
+                    statistics.customAssetValue += (customAsset.amount * customAsset.price) / this.rates[customAsset.currency];
+                    statistics.barChartData[1].push([customAsset.identifier, (customAsset.amount * customAsset.price) / this.rates[customAsset.currency]]);
+                });
+
+                this.portfolio.fiat.forEach(fiat => {
+                    statistics.fiatValue += fiat.amount / this.rates[fiat.currency];
+                    statistics.barChartData[2].push([fiat.identifier, fiat.amount / this.rates[fiat.currency]]);
+                });
+
+                statistics.marketValue = statistics.coinValue+statistics.fiatValue+statistics.customAssetValue;
+
+                return statistics;
             }
         },
 
         methods: {
-            toggleActiveAsset(assetIdentifier) {
-                this.$set(this.active, assetIdentifier, !this.active[assetIdentifier]);
-            },
-            removeAsset(asset) {
-                this.portfolio.assets.splice(this.portfolio.assets.findIndex(a => a.identifier == asset.identifier),1);
-            },
             toggleEditable(editable) {
                 this.editable = editable;
             },
-            addAssetToActive(tickerId) {
-                this.$set(this.active, tickerId, false);
+            toggleActiveAsset([assetTypeIndex,assetIndex]) {
+                this.$set(this.activeAssets[assetTypeIndex], assetIndex, !this.activeAssets[assetTypeIndex][assetIndex]);
             }
         }
     }
